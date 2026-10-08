@@ -1,0 +1,37 @@
+project(':RLHD') {
+	afterEvaluate { Project rlhd ->
+		rlhd.apply from: rootProject.file('Tools/Dev/build.gradle')
+
+		// Make the developer source set visible to the IDE test module.
+		rlhd.dependencies.add('testImplementation', rlhd.sourceSets.developer.output)
+		rlhd.tasks.register('runRenderDoc', JavaExec) {
+			dependsOn rlhd.tasks.named('testClasses'), rlhd.tasks.named('developerClasses')
+			classpath = rlhd.sourceSets.test.runtimeClasspath
+			mainClass = 'rs117.hd.HdPluginTest'
+			workingDir = rlhd.projectDir
+			jvmArgs '-ea', '-Xmx768M', '--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED'
+			args '--developer-mode', '--debug', '--disable-telemetry'
+			environment 'LD_PRELOAD', '/usr/lib/librenderdoc.so'
+			systemProperty 'runelite.rlawtpath', rootProject.file('Tools/rlawt/build/librlawt.so').absolutePath
+		}
+	}
+}
+
+// Convenience aliases so everything can be run from the root
+tasks.register('run') {
+	group = 'application'
+	description = 'Runs RLHD (with all tools on the classpath) in RuneLite developer mode'
+	dependsOn ':RLHD:run'
+}
+
+tasks.register('developerJar') {
+	group = 'build'
+	description = 'Builds the developer tools jar'
+	dependsOn ':RLHD:developerJar'
+}
+
+tasks.register('shadowJar') {
+	group = 'build'
+	description = 'Builds the RLHD shadow jar'
+	dependsOn ':RLHD:shadowJar'
+}

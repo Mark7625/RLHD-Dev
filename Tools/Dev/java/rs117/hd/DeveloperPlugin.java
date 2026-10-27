@@ -4,12 +4,11 @@ import com.google.inject.Provides;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.events.*;
-import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
+import rs117.hd.gui.HdPanelRegistry;
 
 @Slf4j
 @Singleton
@@ -22,7 +21,7 @@ import net.runelite.client.plugins.PluginDescriptor;
 public class DeveloperPlugin extends Plugin {
 
 	@Inject
-	private ClientThread clientThread;
+	private HdPanelRegistry panelRegistry;
 
 	@Provides
 	DeveloperConfig provideConfig(ConfigManager configManager) {
@@ -31,15 +30,11 @@ public class DeveloperPlugin extends Plugin {
 
 	@Override
 	protected void startUp() {
-		clientThread.invoke(() -> {
-			// Stub
-		});
+		panelRegistry.registerAll();
 	}
 
 	@Override
 	protected void shutDown() {
-		clientThread.invoke(() -> {
-			// Stub
-		});
+		panelRegistry.unregisterAll();
 	}
 }

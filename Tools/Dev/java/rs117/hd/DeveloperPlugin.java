@@ -12,6 +12,7 @@ import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.PluginManager;
+import rs117.hd.dev.sceneloader.SceneLoader;
 import rs117.hd.dev.spawner.SpawnerTools;
 import rs117.hd.model.ModelExporter;
 import rs117.hd.model.ModelImporter;
@@ -47,6 +48,9 @@ public class DeveloperPlugin extends Plugin {
 	@Nullable
 	private volatile SpawnerTools spawnerTools;
 
+	@Nullable
+	private volatile SceneLoader sceneLoader;
+
 	@Provides
 	DeveloperConfig provideConfig(ConfigManager configManager) {
 		return configManager.getConfig(DeveloperConfig.class);
@@ -72,6 +76,11 @@ public class DeveloperPlugin extends Plugin {
 			if (config.spawner())
 				spawner.startUp();
 
+			var loader = injector.getInstance(SceneLoader.class);
+			sceneLoader = loader;
+			if (config.cacheScene())
+				loader.startUp();
+
 			return true;
 		});
 	}
@@ -82,6 +91,11 @@ public class DeveloperPlugin extends Plugin {
 		spawnerTools = null;
 		if (spawner != null)
 			spawner.shutDown();
+
+		var loader = sceneLoader;
+		sceneLoader = null;
+		if (loader != null)
+			loader.shutDown();
 
 		clientThread.invoke(() -> {
 			if (modelImporter != null)
@@ -95,15 +109,27 @@ public class DeveloperPlugin extends Plugin {
 
 	@Subscribe
 	public void onConfigChanged(ConfigChanged event) {
-		if (!event.getGroup().equals(DeveloperConfig.CONFIG_GROUP) || !event.getKey().equals(DeveloperConfig.KEY_SPAWNER))
+		if (!event.getGroup().equals(DeveloperConfig.CONFIG_GROUP))
 			return;
-		var spawner = spawnerTools;
-		if (spawner == null)
-			return;
-		if (config.spawner()) {
-			spawner.startUp();
-		} else {
-			spawner.shutDown();
+
+		if (event.getKey().equals(DeveloperConfig.KEY_SPAWNER)) {
+			var spawner = spawnerTools;
+			if (spawner == null)
+				return;
+			if (config.spawner()) {
+				spawner.startUp();
+			} else {
+				spawner.shutDown();
+			}
+		} else if (event.getKey().equals(DeveloperConfig.KEY_CACHE_SCENE)) {
+			var loader = sceneLoader;
+			if (loader == null)
+				return;
+			if (config.cacheScene()) {
+				loader.startUp();
+			} else {
+				loader.shutDown();
+			}
 		}
 	}
 }

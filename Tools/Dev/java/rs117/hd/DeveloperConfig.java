@@ -18,4 +18,15 @@ public interface DeveloperConfig extends Config {
 	default boolean spawner() {
 		return false;
 	}
+
+	String KEY_CACHE_SCENE = "cacheScene";
+	@ConfigItem(
+		keyName = KEY_CACHE_SCENE,
+		name = "Cache Scene",
+		description = "Add the 117 HD Cache Scene sidebar, for loading any region straight from the cache without travelling there",
+		position = 1
+	)
+	default boolean cacheScene() {
+		return false;
+	}
 }

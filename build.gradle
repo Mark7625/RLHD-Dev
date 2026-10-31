@@ -88,6 +88,18 @@ tasks.register('developerJar') {
 	dependsOn ':RLHD:developerJar'
 }
 
+tasks.register('simulatedRender') {
+	group = 'application'
+	description = 'Draws a cache scene with the real 117 HD renderer, without RuneLite. -PsimArgs="--x 3222 --y 3218"'
+	dependsOn ':RLHD:simulatedRender'
+}
+
+tasks.register('benchmark') {
+	group = 'verification'
+	description = 'Times 117 HD drawing a cache scene and writes a CSV. -PsimArgs="--spin 12 --out run.csv"'
+	dependsOn ':RLHD:benchmark'
+}
+
 tasks.register('shadowJar') {
 	group = 'build'
 	description = 'Builds the RLHD shadow jar'

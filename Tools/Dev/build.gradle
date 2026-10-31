@@ -28,6 +28,8 @@ dependencies {
 		exclude group: 'org.slf4j', module: 'slf4j-simple'
 	}
 
+	add('developerImplementation', 'org.mockito:mockito-core:5.14.2')
+
 	add('developerImplementation', platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
 	add('developerImplementation', "org.lwjgl:lwjgl")
 	add('developerImplementation', "org.lwjgl:lwjgl-assimp")
@@ -43,6 +45,30 @@ tasks.named('processDeveloperResources') {
 	filesMatching('runelite-plugin.properties') {
 		expand(version: project.version)
 	}
+}
+
+tasks.register('simulatedRender', JavaExec) {
+	group = 'application'
+	description = 'Draws a cache scene with the real 117 HD renderer, without RuneLite'
+	dependsOn tasks.named('classes'), tasks.named('developerClasses')
+	classpath = sourceSets.developer.runtimeClasspath
+	mainClass = 'rs117.hd.dev.sceneloader.standalone.ui.HdPreview'
+	workingDir = project.rootProject.projectDir
+	jvmArgs '-ea', '-Xmx2G'
+	if (project.hasProperty('simArgs'))
+		args project.property('simArgs').toString().split('\\s+')
+}
+
+tasks.register('benchmark', JavaExec) {
+	group = 'verification'
+	description = 'Times 117 HD drawing a cache scene, and writes the frame timers to a CSV'
+	dependsOn tasks.named('classes'), tasks.named('developerClasses')
+	classpath = sourceSets.developer.runtimeClasspath
+	mainClass = 'rs117.hd.dev.sceneloader.standalone.headless.HdBenchmark'
+	workingDir = project.rootProject.projectDir
+	jvmArgs '-ea', '-Xmx2G'
+	if (project.hasProperty('simArgs'))
+		args project.property('simArgs').toString().split('\\s+')
 }
 
 tasks.register('developerJar', Jar) {

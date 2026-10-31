@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
@@ -279,6 +280,10 @@ public class Definitions implements Closeable {
 	@Nullable
 	public TextureDefinition texture(int id) {
 		return textures.findTexture(id);
+	}
+
+	public List<TextureDefinition> textures() {
+		return textures.getTextures();
 	}
 
 	public int textureColor(int id) {
